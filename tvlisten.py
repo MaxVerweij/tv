@@ -18,8 +18,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         with conn:
             data = conn.recv(1024).decode().strip()
             if data == "status":
-                status = tv.power_status
-                response = "on" if status == cec.CEC_POWER_STATUS_ON else "off"
+                try:
+                   status = tv.is_on()
+                except Exception as e: 
+                   status = "unknown"
+                response = f"{str(status)}\n"
+                # response = "on" if status == cec.CEC_POWER_STATUS_ON else "off"
                 conn.sendall(response.encode())
+            elif data == "turnontv":
+              tv.power_on()
+              conn.sendall("turned_on".encode())
             else:
                 conn.sendall(b"unknown command")
